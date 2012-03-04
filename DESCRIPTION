@@ -6,13 +6,11 @@ Type: Package
 LazyLoad: yes
 Author: Stephan Artmann, Klaus Jung, Tim Beissbarth
 Description: combined miRNA- and mRNA-testing
-Version: 1.1
-Date: 2011-05-17
+Version: 1.2
+Date: 2012-03-04
 Depends: globaltest, GlobalAncova, limma, RepeatedHighDim, corpcor,
         MASS
 Collate: 'miRtest.R'
+Packaged: 2012-03-06 12:49:31 UTC; stephan
 Repository: CRAN
-Repository/R-Forge/Project: mirtest
-Repository/R-Forge/Revision: 18
-Date/Publication: 2011-05-29 07:55:06
-Packaged: 2011-05-18 21:07:04 UTC; rforge
+Date/Publication: 2012-03-06 14:46:39

@@ -23,74 +23,7 @@ contingency.table = function (gene.set,p.val,sign=0.05) {
 #' @return Allocation matrix A necessary for "miR.test" function.
 #' @author Stephan Artmann
 #' @examples
-#' #######################################
-#' ### Generate random expression data ###
-#' #######################################
-#' # Generate random miRNA expression data of 3 miRNAs
-#' # with 8 replicates
-#' set.seed(1)
-#' X = rnorm(24);
-#' dim(X) = c(3,8);
-#' rownames(X) = 1:3;
-#' # Generate random mRNA expression data with 20 mRNAs
-#' # and 10 replicates
-#' Y = rnorm(200);
-#' dim(Y) = c(20,10);
-#' rownames(Y) = 1:20;
-#' # Let's assume that we want to compare 2 miRNA groups, each of 4 replicates:
-#' group.miRNA = factor(c(1,1,1,1,2,2,2,2));
-#' # ... and that the corresponding mRNA experiments had 5 replicates in each group
-#' group.mRNA = factor(c(1,1,1,1,1,2,2,2,2,2));
-#' ####################
-#' ### Perform Test ###
-#' ####################
-#' library(miRtest)
-#' #Let miRNA 1 attack mRNAs 1 to 9 and miRNA 2 attack mRNAs 10 to 17.
-#' # mRNAs 18 to 20 are not attacked. miRNA 3 has no gene set.
-#' miR = c(rep(1,9),c(rep(2,8)));
-#' mRNAs = 1:17;
-#' A = data.frame(mRNAs,miR); # Note that the miRNAs MUST be in the second column!
-#' A
-#' set.seed(1)
-#' P = miR.test(X,Y,A,group.miRNA,group.mRNA)
-#' P
-#' 
-#' 
-#' #####################################################
-#' ### For a faster result: use other gene set tests ###
-#' #####################################################
-#' # Wilcoxon two-sample test is recommended for fast results
-#' # Note that results may vary depending on how much genes correlate
-#' 
-#' P.gsWilcox = miR.test(X,Y,A,group.miRNA,group.mRNA,gene.set.tests="W")
-#' P.gsWilcox
-#' ############################################
-#' ### We can use an allocation matrix as A ###
-#' ############################################
-#' A = generate.A(A,X=X,Y=Y,verbose=FALSE);
-#' A
-#' # Now we can test as before
-#' set.seed(1)
-#' P = miR.test(X,Y,A,group.miRNA,group.mRNA,allocation.matrix=TRUE)
-#' P
-#' 
-#' 
-#' #####################
-#' ### Other Designs ###
-#' #####################
-#' 
-#' # Some more complicated designs are implemented, check the vignette "miRtest" for details.
-#' group.miRNA = 1:8
-#' group.mRNA = 1:10
-#' covariable.miRNA = factor(c(1,2,3,4,1,2,3,4))    ### A covariable in miRNAs.
-#' covariable.mRNA = factor(c(1,2,3,4,5,1,2,3,4,5)) ### A covariable in mRNAs.
-#' 
-#' library(limma)
-#' design.miRNA = model.matrix(~group.miRNA + covariable.miRNA)
-#' design.mRNA =  model.matrix(~group.mRNA + covariable.mRNA)
-#' 
-#' P = miR.test(X,Y,A,design.miRNA=design.miRNA,design.mRNA=design.mRNA,allocation.matrix=TRUE)
-#' P
+##MAINEXAMPLE
 generate.A = function (df,X=NULL,Y=NULL,verbose=TRUE) {
  mRNA = unique(df[,1]);
  miRNA = unique(df[,2]);
@@ -215,6 +148,7 @@ gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,desig
   ga.perm = permutation;
  }
  if (length(tests) == 0) stop ("No gene set tests specified in gs.test!");
+ if (!is.null(design) && !is.null(group)) stop ("Group and design specified, aborting")
  if (!is.null(design)) tests = tests[tests != "GA" & tests != "globaltest" & tests != "RHD"]
  if (length(tests) == 0) stop ("Only competitive gene set tests and `ROAST' can be applied to design matrices! This is not yet implemented for the remaining tests.");
  # Prepare the p-value matrix depending on which tests have been chosen
@@ -299,13 +233,13 @@ gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,desig
   }
   if ("globaltest" %in% tests) {
    if (length(which(index & (M<0))) > 2) {
-    gt.low = gt(group,Y[index & M<0,])@result[,1];
+    gt.low = gt(group,Y[index & M<0,],permutations=gt.perm)@result[,1];
    } else {
     gt.low = NA;
    }
    P.l [j,match("globaltest",tests)] = gt.low;
    if (length(which(index & (M>0))) > 2) {
-    gt.high = gt(group,Y[index & M>0,])@result[,1];
+    gt.high = gt(group,Y[index & M>0,],permutations=gt.perm)@result[,1];
    } else {
     gt.high = NA;
    }
@@ -367,7 +301,7 @@ gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,desig
  }
  if ("roast" %in% tests) {
    if(verbose) print("Starting ROAST procedure...")
-   Roast = mroast(L.roast,Y,design,nrot=nrot,adjust="none")$P.Value;
+   Roast = mroast(L.roast,Y,design,nrot=nrot,adjust.method="none")$P.Value;
    P.l[,match("roast",tests)] = Roast[,3];
    P.h[,match("roast",tests)] = Roast[,2];
    if(verbose) print("Finished ROAST procedure...")
@@ -478,77 +412,14 @@ m.combine = function(M,v,FUN,...) {
 #' 7 July 2010.
 #' 
 #' @examples 
-#' #######################################
-#' ### Generate random expression data ###
-#' #######################################
-#' # Generate random miRNA expression data of 3 miRNAs
-#' # with 8 replicates
-#' set.seed(1)
-#' X = rnorm(24);
-#' dim(X) = c(3,8);
-#' rownames(X) = 1:3;
-#' # Generate random mRNA expression data with 20 mRNAs
-#' # and 10 replicates
-#' Y = rnorm(200);
-#' dim(Y) = c(20,10);
-#' rownames(Y) = 1:20;
-#' # Let's assume that we want to compare 2 miRNA groups, each of 4 replicates:
-#' group.miRNA = factor(c(1,1,1,1,2,2,2,2));
-#' # ... and that the corresponding mRNA experiments had 5 replicates in each group
-#' group.mRNA = factor(c(1,1,1,1,1,2,2,2,2,2));
-#' ####################
-#' ### Perform Test ###
-#' ####################
-#' library(miRtest)
-#' #Let miRNA 1 attack mRNAs 1 to 9 and miRNA 2 attack mRNAs 10 to 17.
-#' # mRNAs 18 to 20 are not attacked. miRNA 3 has no gene set.
-#' miR = c(rep(1,9),c(rep(2,8)));
-#' mRNAs = 1:17;
-#' A = data.frame(mRNAs,miR); # Note that the miRNAs MUST be in the second column!
-#' A
-#' set.seed(1)
-#' P = miR.test(X,Y,A,group.miRNA,group.mRNA)
-#' P
-#' 
-#' 
-#' #####################################################
-#' ### For a faster result: use other gene set tests ###
-#' #####################################################
-#' # Wilcoxon two-sample test is recommended for fast results
-#' # Note that results may vary depending on how much genes correlate
-#' 
-#' P.gsWilcox = miR.test(X,Y,A,group.miRNA,group.mRNA,gene.set.tests="W")
-#' P.gsWilcox
-#' ############################################
-#' ### We can use an allocation matrix as A ###
-#' ############################################
-#' A = generate.A(A,X=X,Y=Y,verbose=FALSE);
-#' A
-#' # Now we can test as before
-#' set.seed(1)
-#' P = miR.test(X,Y,A,group.miRNA,group.mRNA,allocation.matrix=TRUE)
-#' P
-#' 
-#' 
-#' #####################
-#' ### Other Designs ###
-#' #####################
-#' 
-#' # Some more complicated designs are implemented, check the vignette "miRtest" for details.
-#' group.miRNA = 1:8
-#' group.mRNA = 1:10
-#' covariable.miRNA = factor(c(1,2,3,4,1,2,3,4))    ### A covariable in miRNAs.
-#' covariable.mRNA = factor(c(1,2,3,4,5,1,2,3,4,5)) ### A covariable in mRNAs.
-#' 
-#' library(limma)
-#' design.miRNA = model.matrix(~group.miRNA + covariable.miRNA)
-#' design.mRNA =  model.matrix(~group.mRNA + covariable.mRNA)
-#' 
-#' P = miR.test(X,Y,A,design.miRNA=design.miRNA,design.mRNA=design.mRNA,allocation.matrix=TRUE)
-#' P
+##MAINEXAMPLE
 miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="romer",design.miRNA=NULL,design.mRNA=NULL,adjust="none",permutation=FALSE,nrot=1000,allocation.matrix=FALSE,verbose=FALSE,errors=TRUE) {
 
  library(limma)
+
+ ### Convert data.frames into matrices
+ X = as.matrix(X);
+ Y = as.matrix(Y);
 
  ### Check Data Input ### 
  if (length(gene.set.tests) == 0) stop("Please provide gene.set.tests")
@@ -559,6 +430,11 @@ miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="rome
  if (length(gene.set.tests) == 1 && gene.set.tests == "all") gene.set.tests = c("globaltest","GA","RHD","KS","W","Fisher","roast","romer")
  if (!(all(gene.set.tests %in% c("globaltest","GA","RHD","KS","W","Fisher","roast","romer")))) stop("Check gene.set.tests and enter only one or more of the following tests: globaltest, GA, KS, RHD, W, Fisher, roast, romer or all if you want to do all tests")
  if (!is.null(group.miRNA) & !is.null(design.miRNA)) warning("group.miRNA will be ignored as design.miRNA is specified")
+ if (!is.null(group.miRNA) & !is.null(group.mRNA)) {
+  if (!all(levels(group.miRNA) == levels(group.mRNA))) stop ("Group names of miRNA samples must be the same as of the mRNA samples. Aborting");
+ print("Assuming that group names of miRNA samples are the same as of mRNA samples!");
+ }
+ if (!is.null(design.mRNA)) gene.set.tests = gene.set.tests[gene.set.tests != "GA" & gene.set.tests != "globaltest" & gene.set.tests != "RHD"]
 
  ### Order the allocation matrix ###
  if(allocation.matrix) {
@@ -595,8 +471,7 @@ miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="rome
  tests = gene.set.tests;
  if(!is.null(design.mRNA)) {
   GS = gs.test(A,X,Y,group=NULL,tests,permutation=permutation,nrot=nrot,design=design.mRNA,allocation.matrix=allocation.matrix,verbose=verbose);
- }
- else {
+ } else {
   GS = gs.test(A,X,Y,group.mRNA,tests,permutation=permutation,nrot=nrot,allocation.matrix=allocation.matrix,verbose=verbose);
  }
 
@@ -607,6 +482,9 @@ miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="rome
  }
  if ("romer" %in% tests) {
   rot.tests[match("romer",tests)] = TRUE;
+ }
+ if ("W" %in% tests) {
+  rot.tests[match("W",tests)] = TRUE;
  }
  P.l = GS$low;
  P.h = GS$high;
@@ -620,8 +498,10 @@ miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="rome
   P[,!rot.tests] = apply(2*pmin(P.l[,!rot.tests,drop=FALSE],P.h[,!rot.tests,drop=FALSE]),c(1,2),min,1); 
  }
  if (length(which(rot.tests)) > 0) {
-  P.l[,rot.tests] = m.combine(P.l[,rot.tests],miR.h,inverse.normal.combination);      
+  P.l[,rot.tests] = m.combine(P.l[,rot.tests],miR.h,inverse.normal.combination);
+  P.l[,rot.tests] [abs(P.l[,rot.tests] - miR.h) == 1] = 1;                           ### remove NaN that results from combining 0 and 1
   P.h[,rot.tests] = m.combine(P.h[,rot.tests],miR.l,inverse.normal.combination);
+  P.l[,rot.tests] [abs(P.h[,rot.tests] - miR.l) == 1] = 1;                           ### remove NaN that results from combining 0 and 1
   P[,rot.tests] = pmax(P.l[,rot.tests],P.h[,rot.tests]);                             ### as rotation tests can return 1 we have to take the maximum here
  }
  P = apply(P,2,p.adjust,method=adjust);

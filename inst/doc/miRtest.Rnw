@@ -6,9 +6,9 @@
 %\VignetteIndexEntry{Vignette on miRtest package}
 
 % TITLE PAGE
-\title{miRtest v. 1.1 Package Vignette}
+\title{miRtest v. 1.2 Package Vignette}
 \author{Stephan Artmann <stephan-artmann@gmx.net>,\\Klaus Jung,\\Tim Bei\ss barth}
-\date{G\"ottingen 2011}
+\date{G\"ottingen 2012}
 
 
 % BEGIN OF DOCUMENT
@@ -16,7 +16,7 @@
 \maketitle
 \tableofcontents
 \section{Introduction}
-High-throughput measurements of gene expression are gaining popularity. So are microRNA analyses. The `miRtest' package \cite[] {detection_artmann_submitted} intends to help researches find regulated expressed miRNAs between two groups.
+High-throughput measurements of gene expression are gaining popularity. So are microRNA analyses. The `miRtest' package \cite[] {detection_artmann_submitted} intends to help researchers find differentially expressed miRNAs between two groups.
 
 `miRtest' tries to improve power when testing for differentially regulated miRNAs by incorporation of their regulated gene sets' expression data.
 
@@ -160,6 +160,29 @@ P
 @
 Note that so far this works only with the competitive gene set tests and `ROAST'.
 
+\pagebreak
+\section{Analysis of Data from \cite{nielsen09}}
+In \cite{detection_artmann_submitted}, we analysed the neurogenesis data from \cite{nielsen09}, where rat Early Neuronal Progenitors from embryonic day 11 and day 13 were compared in miRNA and mRNA microarrays.\\
+We use part of this dataset as an example on how to analyse data with `miRtest'.\\
+First, we load the package and the miRNA and mRNA data tables:
+<<example>>=
+library(miRtest)
+data("X",package="miRtest")  ### this is the miRNA expression data of the ten most interesting miRNAs
+data("Y",package="miRtest")  ### this is the mRNA expression data of the genes targeted by these miRNAs
+data("A",package="miRtest")  ### allocation data from TargetScan
+@
+Note that A is a data.frame with mRNAs in its first and miRNAs in its second column. This data is part of the allocation data from TargetScan 4.1.\\
+Next, we define the groups (here we have two different ages of rats the cells were extracted from):
+<<example2>>=
+group.mRNA = factor(c(1,1,1,1,2,2,2,2));
+group.miRNA = factor(c(1,1,1,2,2,2));
+@
+Finally, we perform the analysis:
+<<example3>>=
+P = miR.test(X=X,Y=Y,A=A,group.mRNA=group.mRNA,group.miRNA=group.miRNA,
+adjust="BH",gene.set.tests="all",verbose=TRUE)
+@
+P now contains the Benjamini-Hochberg-adjusted p-values for the miRNAs we investigated. Note that for competitive testing the entire mRNA-data would be necessary, while only a subset of mRNAs was used here.
 
 \begin{thebibliography}{}
 
@@ -213,6 +236,14 @@ Mansmann, U. and Meister, R. (2005).
   global test versus an {ANCOVA} approach.
 \newblock {\em Methods of Information in Medicine\/}, {\bf 44}(3).
 
+\bibitem[Nielsen {\em et~al.}(2009)Joseph A Nielsen and Pierre Lau and Dragan Maric and Jeffery L Barker
+        and Lynn D Hudson.]{nielsen09}
+Joseph A Nielsen and Pierre Lau and Dragan Maric and Jeffery L Barker and Lynn D Hudson
+\newblock Integrating {microRNA} and {mRNA} expression profiles of neuronal
+        progenitors to identify regulatory networks underlying the onset
+        of cortical neurogenesis.
+\newblock {\em{BMC} Neuroscience\/}, {\bf 2009}
+
 \bibitem[Smyth(2004)Smyth]{smyth_gordon_k_linear_2004}
 Smyth, G.~K. (2004).
 \newblock Linear models and empirical bayes methods for assessing differential
@@ -227,5 +258,6 @@ Wu, D., Lim, E., Vaillant, F., {Asselin-Labat}, M., Visvader, J.~E., and Smyth,
 \newblock {ROAST:} rotation gene set tests for complex microarray experiments.
 \newblock {\em Bioinformatics {(Oxford,} England)\/}, {\bf 26}(17).
 
+%%add Nielsen et al.
 \end{thebibliography}
 \end{document}
