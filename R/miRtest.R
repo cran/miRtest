@@ -14,6 +14,7 @@ contingency.table = function (gene.set,p.val,sign=0.05) {
  cont.tab; 
 }
 
+
 #' Turn a data.frame indicating gene sets into the allocation matrix. 
 #' @param df data.frame with mRNAs in its first and miRNAs in its second column.
 #' @param X Expression matrix of miRNAs whose row names will be used to generate the list of miRNAs.
@@ -300,7 +301,7 @@ gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,desig
  }
  if ("roast" %in% tests) {
    if(verbose) print("Starting ROAST procedure...")
-   Roast = mroast(L.roast,Y,design,nrot=nrot,adjust.method="none")$P.Value;
+   Roast = mroast(L.roast,y=Y,design=design,nrot=nrot,adjust.method="none")$P.Value;
    P.l[,match("roast",tests)] = Roast[,3];
    P.h[,match("roast",tests)] = Roast[,2];
    if(verbose) print("Finished ROAST procedure...")
@@ -433,6 +434,13 @@ miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="rome
   if (!all(levels(group.miRNA) == levels(group.mRNA))) stop ("Group names of miRNA samples must be the same as of the mRNA samples. Aborting");
  print("Assuming that group names of miRNA samples are the same as of mRNA samples!");
  }
+  if("roast" %in% gene.set.tests) {
+   print("Note: For compatibility reasons ROAST is not available in this version.");
+   print(" It will be added to the next version of miRtest.");
+   print(" To use miRtest with ROAST refer to older versions.");
+   gene.set.tests = gene.set.tests[gene.set.tests != "roast"];
+ }
+ if (length(gene.set.tests) == 0) stop("Please provide gene.set.tests")
  if (!is.null(design.mRNA)) gene.set.tests = gene.set.tests[gene.set.tests != "GA" & gene.set.tests != "globaltest" & gene.set.tests != "RHD"]
 
  ### Order the allocation matrix ###

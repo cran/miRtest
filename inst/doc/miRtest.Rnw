@@ -7,7 +7,7 @@
 %\VignetteIndexEntry{Vignette on miRtest package}
 
 % TITLE PAGE
-\title{miRtest v. 1.4 Package Vignette}
+\title{miRtest v. 1.5 Package Vignette}
 \author{Stephan Artmann <stephan-artmann@gmx.net>,\\Klaus Jung,\\Tim Bei\ss barth}
 \date{G\"ottingen 2012}
 

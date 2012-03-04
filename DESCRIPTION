@@ -1,5 +1,5 @@
 Package: miRtest
-Maintainer: Stephan Artmann <stephan.artmann@stud.uni-goettingen.de>
+Maintainer: Stephan Artmann <stephan-artmann@gmx.net>
 License: GPL
 Title: combined miRNA- and mRNA-testing
 URL: http://www.ncbi.nlm.nih.gov/pubmed/22723856
@@ -7,13 +7,12 @@ Type: Package
 LazyLoad: yes
 Author: Stephan Artmann, Klaus Jung, Tim Beissbarth
 Description: combined miRNA- and mRNA-testing
-Version: 1.4
-Date: 2012-07-03
+Version: 1.5
+Date: 2012-03-04
 Depends: globaltest, GlobalAncova, limma, RepeatedHighDim, corpcor,
         MASS
 Collate: 'miRtest.R'
-Packaged: 2012-07-03 14:22:59 UTC; rforge
+Packaged: 2013-03-20 11:47:01 UTC; stephan
+NeedsCompilation: no
 Repository: CRAN
-Repository/R-Forge/Project: mirtest
-Repository/R-Forge/Revision: 37
-Date/Publication: 2012-07-03 16:51:39
+Date/Publication: 2013-03-21 10:22:38

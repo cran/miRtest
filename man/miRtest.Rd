@@ -13,7 +13,7 @@ that can detect either miRNA- and target gene set expression differences.
 \tabular{ll}{
 Package: \tab miRtest\cr
 Type: \tab Package\cr
-Version: \tab 1.4\cr
+Version: \tab 1.5\cr
 Date: \tab 2012-03-07\cr
 License: \tab GPL\cr
 LazyLoad: \tab yes\cr
