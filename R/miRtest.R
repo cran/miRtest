@@ -1,6 +1,5 @@
 
-print("**WELCOME TO miRtest**")
-print("FOR HELP SEE ?miRtest")
+
 
 #' Contingency table. Necessary for Fisher test.
 #' @param gene.set Vector of gene sets.
