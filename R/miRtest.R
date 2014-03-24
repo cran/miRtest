@@ -134,10 +134,10 @@ limma.test = function (X,group=NULL,design=NULL) {
 #' @author Stephan Artmann
 gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,design=NULL,allocation.matrix=FALSE,verbose=FALSE) {
  # Load required libraries
- library(limma)
- library(globaltest)
- library(GlobalAncova)
- library(RepeatedHighDim)
+ #library(limma)
+ #library(globaltest)
+ #library(GlobalAncova)
+ #library(RepeatedHighDim)
 
  ga.method = "approx";
  ga.perm = 0;
@@ -415,7 +415,7 @@ m.combine = function(M,v,FUN,...) {
 ##MAINEXAMPLE
 miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="romer",design.miRNA=NULL,design.mRNA=NULL,adjust="none",permutation=FALSE,nrot=1000,allocation.matrix=FALSE,verbose=FALSE,errors=TRUE) {
 
- library(limma)
+# library(limma)
 
  ### Convert data.frames into matrices
  X = as.matrix(X);

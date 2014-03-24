@@ -1,0 +1,263 @@
+\documentclass[12pt]{article}
+\usepackage[left=3cm,right=2cm,top=3cm,bottom=2cm,a4paper,includehead,includefoot]{geometry} 
+\usepackage{natbib}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{hyperref}
+%\VignetteIndexEntry{Vignette on miRtest package}
+
+% TITLE PAGE
+\title{miRtest v. 1.5 Package Vignette}
+\author{Stephan Artmann <stephan-artmann@gmx.net>,\\Klaus Jung,\\Tim Bei\ss barth}
+\date{G\"ottingen 2012}
+
+
+% BEGIN OF DOCUMENT
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Introduction}
+High-throughput measurements of gene expression are gaining popularity. So are microRNA analyses. The `miRtest' package \cite[] {detection_artmann_2012} intends to help researchers find differentially expressed miRNAs between two groups.
+
+`miRtest' tries to improve power when testing for differentially regulated miRNAs by incorporation of their regulated gene sets' expression data.
+
+miRNA-wise testing is done with the linear models implemented in the `limma' package \cite[] {smyth_gordon_k_linear_2004}. For gene set testing, different procedures can be chosen from: the self-contained tests `globaltest' \cite[] {goeman_global_2004}, `GlobalAncova' \cite[]{mansmann_testing_2005,hummel_globalancova:_2008}, `RepeatedHighDim' \citep{jung_comparison_2011,brunner_repeated_2009}, the rotation tests `ROAST' \cite[]{wu_roast:_2010} and `Romer' \cite[]{majewski_opposing_2010} as well as non-rotation enrichment tests.
+\section{Simple Example}
+The main function of `miRtest' is `miR.test'. It requires the user to supply an expression matrix $\boldsymbol{X}$ of miRNAs with miRNAs in its rows and microarray samples in its columns. Additionally, the procedures require an analogous matrix $\boldsymbol{Y}$ of mRNA expression values. Finally, a data.frame $\boldsymbol{A}$ is necessary: it defines which mRNAs are attacked by which miRNA.
+To begin with, we will generate random expression data: miRNA expression matrix $\boldsymbol{X}$, mRNA expression matrix $\boldsymbol{Y}$ and an allocation data.frame $\boldsymbol{A}$.
+<<DatagenerationX>>=
+#######################################
+### Generate random expression data ###
+#######################################
+# Generate random miRNA expression data of 3 miRNAs
+# with 8 replicates
+set.seed(1)
+X = rnorm(24);
+dim(X) = c(3,8);
+rownames(X) = 1:3;
+@
+In this synthetic experiment, 8 microarray replicates are present with three miRNAs on each. Additionally, we need a corresponding matrix $\boldsymbol{Y}$ for mRNAs. Here we assume we have 20 mRNAs and 10 microarray replicates:
+<<DatagenerationY>>=
+# Generate random mRNA expression data with 20 mRNAs
+# and 10 replicates
+Y = rnorm(200);
+dim(Y) = c(20,10);
+rownames(Y) = 1:20;
+@
+Now we need to define what we want to test for. We shall concentrate on two-group testing, i. e. the search for miRNAs differentially expressed between two groups $1$ and $2$. For other designs see Section~\ref{designs}. Let's say both groups are of equal sample size in miRNA and mRNA microarrays:
+
+<<groups>>=
+# Let's assume that we want to compare 2 miRNA groups, each of 4 replicates:
+group.miRNA = factor(c(1,1,1,1,2,2,2,2));
+# ... and that the corresponding mRNA experiments had 5 replicates in each group
+group.mRNA = factor(c(1,1,1,1,1,2,2,2,2,2));
+@
+
+Next, we need the allocation information. In most databases it is provided as a data.frame $\boldsymbol{A}$, where the first column contains mRNAs and the second miRNAs. Each row of $\boldsymbol{A}$ indicates which mRNA is targeted by which miRNA. Let's say that miRNA $1$ has nine target genes and miRNA $2$ the remaining ones. The gene set of miRNA $3$ will be empty.
+<<allocation>>=
+####################
+### Perform Test ###
+####################
+library(miRtest)
+#Let miRNA 1 attack mRNAs 1 to 9 and miRNA 2 attack mRNAs 10 to 17.
+# mRNAs 18 to 20 are not attacked. miRNA 3 has no gene set.
+miR = c(rep(1,9),c(rep(2,8)));
+mRNAs = 1:17;
+A = data.frame(mRNAs,miR); # Note that the miRNAs MUST be in the second column!
+A
+@
+
+Finally, the function `miR.test' is called which does the testing.
+<<analysis>>=
+set.seed(1)
+P = miR.test(X,Y,A,group.miRNA,group.mRNA)
+P
+
+
+@
+Note that for the empty gene set `NA' was returned.
+\pagebreak
+\section{Choice of Gene Set Tests}
+The `gene.set.test' argument in miR.test takes a vector of strings. These are the gene set tests that shall be applied. The default is the `romer' test as it is competitive and compensates for inter-gene correlations. The different gene set tests available are:\\~\\
+\begin{tabular}{lr}
+\hline
+\textbf{Test}&\textbf{Name in miR.test}\\
+\hline
+\\
+\textbf{Self-contained}&\\
+`globaltest' \cite[]{goeman_global_2004}&"globaltest"\\
+`GlobalAncova'&"GA"\\
+\citep{mansmann_testing_2005,hummel_globalancova:_2008}&\\
+`RepeatedHighDim' \citep{brunner_repeated_2009}&"RHD"\\
+\\
+\textbf{Competitive}\\
+Kolm. Smirnov test on gene ranks&"KS"\\
+Wilcoxon test on gene ranks&"W"\\
+Fisher's exact test on gene ranks with 5 \% FDR threshold&"Fisher"\\
+`ROAST' \cite[]{wu_roast:_2010}&"roast"\\
+`romer' \cite[]{majewski_opposing_2010}&"romer"\\
+\hline
+\end{tabular}
+\subsection{Faster Algorithm}
+The specification of other gene set tests in miR.test is therefore rather simple. To obtain faster results than with the default `romer' rotation test, the Wilcoxon two-sample test based on gene ranks is recommended:
+<<otherTests>>=
+#####################################################
+### For a faster result: use other gene set tests ###
+#####################################################
+# Wilcoxon two-sample test is recommended for fast results
+# Note that results may vary depending on how much genes correlate
+
+P.gsWilcox = miR.test(X,Y,A,group.miRNA,group.mRNA,gene.set.tests="W")
+P.gsWilcox
+@
+\pagebreak
+\section{Other Input Formats of Allocation Data}
+To make `miR.test' run faster one can specify an allocation matrix instead of the allocation data.frame. Its columns stand for the miRNAs and its rows for the mRNAs. If a mRNA is a target of a miRNA, the corresponding entry is $1$, else it is $0$. An easy way to generate allocation matrices is the `generate.A' function:
+<<otherA>>=
+############################################
+### We can use an allocation matrix as A ###
+############################################
+A = generate.A(A,X=X,Y=Y,verbose=FALSE);
+A
+@
+To use the allocation matrix, we need to set `allocation.matrix=TRUE' in `miR.test':
+<<otherAtest>>=
+# Now we can test as before
+set.seed(1)
+P = miR.test(X,Y,A,group.miRNA,group.mRNA,allocation.matrix=TRUE)
+P
+
+
+@
+
+\pagebreak
+\section{Other Designs than Two-Group Design \label{designs}}
+Primarily, `miRtest' has been designed for two-group comparisons. However, `miRtest' accepts design matrices as used in `limma' \cite[] {smyth_gordon_k_linear_2004}. The only limitation is that `miRtest' takes the second column from `limma's `eBayes' function to calculate final $p$-values. This already allows designs including
+\begin{itemize}
+ \item covariables and
+ \item continuous group/response vectors.
+\end{itemize}
+Other designs will be implemented in future versions. Regard the following example which shows how to use `miRtest' on such designs. First we create the design matrices
+<<otherDesigns>>=
+#####################
+### Other Designs ###
+#####################
+
+# Some more complicated designs are implemented, check the vignette "miRtest" for details.
+group.miRNA = 1:8
+group.mRNA = 1:10
+covariable.miRNA = factor(c(1,2,3,4,1,2,3,4))    ### A covariable in miRNAs.
+covariable.mRNA = factor(c(1,2,3,4,5,1,2,3,4,5)) ### A covariable in mRNAs.
+
+library(limma)
+design.miRNA = model.matrix(~group.miRNA + covariable.miRNA)
+design.mRNA =  model.matrix(~group.mRNA + covariable.mRNA)
+
+@
+which then we use in `miR.test'
+<<otherDesignsMirTest>>=
+P = miR.test(X,Y,A,design.miRNA=design.miRNA,design.mRNA=design.mRNA,allocation.matrix=TRUE)
+P
+@
+Note that so far this works only with the competitive gene set tests and `ROAST'.
+
+\pagebreak
+\section{Analysis of Data from \cite{nielsen09}}
+In \cite{detection_artmann_2012}, we analysed the neurogenesis data from \cite{nielsen09}, where rat Early Neuronal Progenitors from embryonic day 11 and day 13 were compared in miRNA and mRNA microarrays.\\
+We use part of this dataset as an example on how to analyse data with `miRtest'.\\
+First, we load the package and the miRNA and mRNA data tables:
+<<example>>=
+library(miRtest)
+data("X",package="miRtest")  ### this is the miRNA expression data of the ten most interesting miRNAs
+data("Y",package="miRtest")  ### this is the mRNA expression data of the genes targeted by these miRNAs
+data("A",package="miRtest")  ### allocation data from TargetScan
+@
+Note that A is a data.frame with mRNAs in its first and miRNAs in its second column. This data is part of the allocation data from TargetScan 4.1.\\
+Next, we define the groups (here we have two different ages of rats the cells were extracted from):
+<<example2>>=
+group.mRNA = factor(c(1,1,1,1,2,2,2,2));
+group.miRNA = factor(c(1,1,1,2,2,2));
+@
+Finally, we perform the analysis:
+<<example3>>=
+P = miR.test(X=X,Y=Y,A=A,group.mRNA=group.mRNA,group.miRNA=group.miRNA,
+adjust="BH",gene.set.tests="all",verbose=TRUE)
+@
+P now contains the Benjamini-Hochberg-adjusted p-values for the miRNAs we investigated. Note that for competitive testing the entire mRNA-data would be necessary, while only a subset of mRNAs was used here.
+
+\begin{thebibliography}{}
+
+\bibitem[Artmann {\em et~al.}(2012)Artmann, Jung, Bleckmann, and
+  Bei{\ss}barth]{detection_artmann_2012}
+Artmann, S., Jung, K., Bleckmann, A., and Bei{\ss}barth, T.
+\newblock {Detection of Simultaneous Group Effects in microRNA Expression and
+  related functional Gene Sets}.
+\newblock {\em PLoS ONE 7(6):e38365.} \url{http://www.ncbi.nlm.nih.gov/pubmed/22723856/}
+\bibitem[Brunner(2009)Brunner]{brunner_repeated_2009}
+Brunner, E. (2009).
+\newblock Repeated measures under non-sphericity.
+\newblock {\em Proceedings of the National Academy of Sciences of the United
+  States of America\/}, pages 605--609.
+
+\bibitem[Goeman {\em et~al.}(2004)Goeman, van~de Geer, de~Kort, and van
+  Houwelingen]{goeman_global_2004}
+Goeman, J.~J., van~de Geer, S.~A., de~Kort, F., and van Houwelingen, H.~C.
+  (2004).
+\newblock A global test for groups of genes: testing association with a
+  clinical outcome.
+\newblock {\em Bioinformatics\/}, {\bf 20}(1), 93 --99.
+
+\bibitem[Hummel {\em et~al.}(2008)Hummel, Meister, and
+  Mansmann]{hummel_globalancova:_2008}
+Hummel, M., Meister, R., and Mansmann, U. (2008).
+\newblock {GlobalANCOVA:} exploration and assessment of gene group effects.
+\newblock {\em Bioinformatics\/}, {\bf 24}(1), 78 --85.
+
+\bibitem[Jung {\em et~al.}(sub)Jung, Becker, Brunner, and
+  Bei{\ss}barth]{jung_comparison_2011}
+Jung, K., Becker, B., Brunner, E., and Bei{\ss}barth, T. (2011).
+\newblock {Comparison of Global Tests for Functional Gene Sets in Two-Group
+  Designs and Selection of Potentially Effect-causing Genes}.
+\newblock {\em Bioinformatics\/}, {\bf 27}, 1377--1383.
+
+\bibitem[Majewski {\em et~al.}(2010)Majewski, Ritchie, Phipson, Corbin,
+  Pakusch, Ebert, Busslinger, Koseki, Hu, Smyth, Alexander, Hilton, and
+  Blewitt]{majewski_opposing_2010}
+Majewski, I.~J., Ritchie, M.~E., Phipson, B., Corbin, J., Pakusch, M., Ebert,
+  A., Busslinger, M., Koseki, H., Hu, Y., Smyth, G.~K., Alexander, W.~S.,
+  Hilton, D.~J., and Blewitt, M.~E. (2010).
+\newblock Opposing roles of polycomb repressive complexes in hematopoietic stem
+  and progenitor cells.
+\newblock {\em Blood\/}, {\bf 116}(5), 731--739.
+
+\bibitem[Mansmann and Meister(2005)Mansmann and Meister]{mansmann_testing_2005}
+Mansmann, U. and Meister, R. (2005).
+\newblock Testing differential gene expression in functional groups. goeman's
+  global test versus an {ANCOVA} approach.
+\newblock {\em Methods of Information in Medicine\/}, {\bf 44}(3).
+
+\bibitem[Nielsen {\em et~al.}(2009)Joseph A Nielsen and Pierre Lau and Dragan Maric and Jeffery L Barker
+        and Lynn D Hudson.]{nielsen09}
+Joseph A Nielsen and Pierre Lau and Dragan Maric and Jeffery L Barker and Lynn D Hudson
+\newblock Integrating {microRNA} and {mRNA} expression profiles of neuronal
+        progenitors to identify regulatory networks underlying the onset
+        of cortical neurogenesis.
+\newblock {\em{BMC} Neuroscience\/}, {\bf 2009}
+
+\bibitem[Smyth(2004)Smyth]{smyth_gordon_k_linear_2004}
+Smyth, G.~K. (2004).
+\newblock Linear models and empirical bayes methods for assessing differential
+  expression in microarray experiments.
+\newblock {\em Statistical Applications in Genetics and Molecular Biology\/},
+  {\bf 3}(1).
+
+\bibitem[Wu {\em et~al.}(2010)Wu, Lim, Vaillant, {Asselin-Labat}, Visvader, and
+  Smyth]{wu_roast:_2010}
+Wu, D., Lim, E., Vaillant, F., {Asselin-Labat}, M., Visvader, J.~E., and Smyth,
+  G.~K. (2010).
+\newblock {ROAST:} rotation gene set tests for complex microarray experiments.
+\newblock {\em Bioinformatics {(Oxford,} England)\/}, {\bf 26}(17).
+
+%%add Nielsen et al.
+\end{thebibliography}
+\end{document}

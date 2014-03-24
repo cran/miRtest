@@ -1,1 +1,7 @@
+import(GlobalAncova)
+import(MASS)
+import(RepeatedHighDim)
+import(corpcor)
+import(globaltest)
+import(limma)
 export("miR.test","generate.A","gs.test")
