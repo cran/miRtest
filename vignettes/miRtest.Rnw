@@ -8,7 +8,7 @@
 
 % TITLE PAGE
 \title{miRtest v. 1.5 Package Vignette}
-\author{Stephan Artmann <stephan-artmann@gmx.net>,\\Klaus Jung,\\Tim Bei\ss barth}
+\author{Stephan Artmann <stephanartmann@gmx.net>,\\Klaus Jung,\\Tim Bei\ss barth}
 \date{G\"ottingen 2012}
 
 
