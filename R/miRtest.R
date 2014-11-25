@@ -308,7 +308,7 @@ gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,desig
  }
  if ("romer" %in% tests) {
    if(verbose) print("Starting romer procedure...")
-  Romer = romer(L.romer,Y,design,nrot=nrot);
+  Romer = romer(index=L.romer,y=Y,design=design,nrot=nrot);
   P.l[,match("romer",tests)] = Romer[,3];
   P.h[,match("romer",tests)] = Romer[,2];
    if(verbose) print("Finished romer procedure...")
