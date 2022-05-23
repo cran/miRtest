@@ -149,7 +149,7 @@ gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,desig
  }
  if (length(tests) == 0) stop ("No gene set tests specified in gs.test!");
  if (!is.null(design) && !is.null(group)) stop ("Group and design specified, aborting")
- if (!is.null(design)) tests = tests[tests != "GA" & tests != "globaltest" & tests != "RHD"]
+ if (!is.null(design)) tests = tests[tests != "GA" & tests != "globaltest"]
  if (length(tests) == 0) stop ("Only competitive gene set tests and `ROAST' can be applied to design matrices! This is not yet implemented for the remaining tests.");
  # Prepare the p-value matrix depending on which tests have been chosen
  testNo = length(tests);
@@ -263,27 +263,6 @@ gs.test = function(A,X=NULL,Y,group=NULL,tests,permutation=FALSE,nrot=1000,desig
    }
    P.h [j,match("GA",tests)] = ga.high;
   }
-  if ("RHD" %in% tests) {
-   if (is.factor(group) && length(levels(group)) == 2) {
-    l = levels(group);
-    if (length(which(index & (M<0))) > 2) {
-     B.low = RepeatedHighDim(Y[index & M<0,which(group==l[1])],Y[index & M<0,which(group == l[2])],paired=FALSE)$p;
-    } else {
-     B.low = NA;
-    }
-    if (length(which(index & (M>0))) > 2) {
-     B.high = RepeatedHighDim(Y[index & M>0,which(group==l[1])],Y[index & M>0,which(group == l[2])],paired=FALSE)$p;
-    } else {
-     B.high = NA;
-    }
-    P.l [j,match("RHD",tests)] = B.low;
-    P.h [j,match("RHD",tests)] = B.high;
-   } else {
-    P.l [j,match("RHD",tests)] = NA;
-    P.h [j,match("RHD",tests)] = NA;
-    warning("RepeatedHighDim only supports two-group comparisons!")
-   }
-  }
   if ("roast" %in% tests) {
    if (length(which(index) > 2)) {
     L.roast[[length(L.roast) + 1]] = which(index);
@@ -366,7 +345,7 @@ m.combine = function(M,v,FUN,...) {
 #' @param design.miRNA If specified, group.miRNA will be ignored. Here you can specify a design matrix as it is returned from the model.matrix `limma' function.
 #' @param design.mRNA If specified, group.mRNA will be ignored. Here you can specify a design matrix as it is returned from the model.matrix `limma' function.
 #' @param group.mRNA Vector of mRNA group membership, being either numeric or a factor (**this makes a difference**).E. g. if you have four replicates in a control group and three replicates in a treated group, you may choose c(1,1,1,1,2,2,2)
-#' @param gene.set.tests Test to be applied for gene set testing. Can be one or more of the following: `globaltest', `GA', `RHD', `KS', `W', `Fisher', `roast', `romer', or `all' if you want to do all tests.
+#' @param gene.set.tests Test to be applied for gene set testing. Can be one or more of the following: `globaltest', `GA', `KS', `W', `Fisher', `roast', `romer', or `all' if you want to do all tests.
 #' @param adjust Muliple hypothesis testing adjustment. Same options as in "p.adjust" function.
 #' @param permutation Number of permutations for `globaltest' or `GlobalAncova' gene set tests. Put to "FALSE" to use the approximate p-values instead of permutation ones.
 #' @param nrot Number of rotations for rotation tests `ROAST' and `romer'
@@ -427,8 +406,8 @@ miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="rome
   if (!(ncol(A) == nrow(X))) stop("Number of columns of A must equal number of rows of X")
   if (errors && !(nrow(A) == nrow(Y))) stop("Number of rows of A must equal number of rows of Y. Check that Y does not have duplicate row names. You can disable this error message with errors=FALSE. Note that then genes ocurring more often than once will have a larger weight in the gene set test.")
  }
- if (length(gene.set.tests) == 1 && gene.set.tests == "all") gene.set.tests = c("globaltest","GA","RHD","KS","W","Fisher","roast","romer")
- if (!(all(gene.set.tests %in% c("globaltest","GA","RHD","KS","W","Fisher","roast","romer")))) stop("Check gene.set.tests and enter only one or more of the following tests: globaltest, GA, KS, RHD, W, Fisher, roast, romer or all if you want to do all tests")
+ if (length(gene.set.tests) == 1 && gene.set.tests == "all") gene.set.tests = c("globaltest","GA","KS","W","Fisher","roast","romer")
+ if (!(all(gene.set.tests %in% c("globaltest","GA","KS","W","Fisher","roast","romer")))) stop("Check gene.set.tests and enter only one or more of the following tests: globaltest, GA, KS, W, Fisher, roast, romer or all if you want to do all tests")
  if (!is.null(group.miRNA) & !is.null(design.miRNA)) warning("group.miRNA will be ignored as design.miRNA is specified")
  if (!is.null(group.miRNA) & !is.null(group.mRNA)) {
   if (!all(levels(group.miRNA) == levels(group.mRNA))) stop ("Group names of miRNA samples must be the same as of the mRNA samples. Aborting");
@@ -441,7 +420,7 @@ miR.test = function (X,Y,A,group.miRNA=NULL,group.mRNA=NULL,gene.set.tests="rome
    gene.set.tests = gene.set.tests[gene.set.tests != "roast"];
  }
  if (length(gene.set.tests) == 0) stop("Please provide gene.set.tests")
- if (!is.null(design.mRNA)) gene.set.tests = gene.set.tests[gene.set.tests != "GA" & gene.set.tests != "globaltest" & gene.set.tests != "RHD"]
+ if (!is.null(design.mRNA)) gene.set.tests = gene.set.tests[gene.set.tests != "GA" & gene.set.tests != "globaltest" ]
 
  ### Order the allocation matrix ###
  if(allocation.matrix) {

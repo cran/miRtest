@@ -1,7 +1,8 @@
 import(GlobalAncova)
 import(MASS)
-import(RepeatedHighDim)
 import(corpcor)
 import(globaltest)
 import(limma)
+importFrom("stats", "fisher.test", "ks.test", "pchisq", "pnorm", "pt",
+             "qnorm", "wilcox.test")
 export("miR.test","generate.A","gs.test")

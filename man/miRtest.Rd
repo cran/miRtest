@@ -68,9 +68,6 @@ JE, and Smyth, GK (2010). ROAST: rotation gene set tests for
 complex microarray experiments. _Bioinformatics_, published online
 7 July 2010.
 }
-\keyword{ package, miRNA
-combined testing,
-expression }
 \seealso{
 Function "generate.A" as well as main function "miR.test"
 }

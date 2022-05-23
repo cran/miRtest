@@ -21,7 +21,7 @@ High-throughput measurements of gene expression are gaining popularity. So are m
 
 `miRtest' tries to improve power when testing for differentially regulated miRNAs by incorporation of their regulated gene sets' expression data.
 
-miRNA-wise testing is done with the linear models implemented in the `limma' package \cite[] {smyth_gordon_k_linear_2004}. For gene set testing, different procedures can be chosen from: the self-contained tests `globaltest' \cite[] {goeman_global_2004}, `GlobalAncova' \cite[]{mansmann_testing_2005,hummel_globalancova:_2008}, `RepeatedHighDim' \citep{jung_comparison_2011,brunner_repeated_2009}, the rotation tests `ROAST' \cite[]{wu_roast:_2010} and `Romer' \cite[]{majewski_opposing_2010} as well as non-rotation enrichment tests.
+miRNA-wise testing is done with the linear models implemented in the `limma' package \cite[] {smyth_gordon_k_linear_2004}. For gene set testing, different procedures can be chosen from: the self-contained tests `globaltest' \cite[] {goeman_global_2004}, `GlobalAncova' \cite[]{mansmann_testing_2005,hummel_globalancova:_2008}, the rotation tests `ROAST' \cite[]{wu_roast:_2010} and `Romer' \cite[]{majewski_opposing_2010} as well as non-rotation enrichment tests.
 \section{Simple Example}
 The main function of `miRtest' is `miR.test'. It requires the user to supply an expression matrix $\boldsymbol{X}$ of miRNAs with miRNAs in its rows and microarray samples in its columns. Additionally, the procedures require an analogous matrix $\boldsymbol{Y}$ of mRNA expression values. Finally, a data.frame $\boldsymbol{A}$ is necessary: it defines which mRNAs are attacked by which miRNA.
 To begin with, we will generate random expression data: miRNA expression matrix $\boldsymbol{X}$, mRNA expression matrix $\boldsymbol{Y}$ and an allocation data.frame $\boldsymbol{A}$.
@@ -88,7 +88,6 @@ The `gene.set.test' argument in miR.test takes a vector of strings. These are th
 `globaltest' \cite[]{goeman_global_2004}&"globaltest"\\
 `GlobalAncova'&"GA"\\
 \citep{mansmann_testing_2005,hummel_globalancova:_2008}&\\
-`RepeatedHighDim' \citep{brunner_repeated_2009}&"RHD"\\
 \\
 \textbf{Competitive}\\
 Kolm. Smirnov test on gene ranks&"KS"\\
