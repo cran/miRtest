@@ -1,13 +1,13 @@
-b3303c97d3e73db1b5030ab7f306ee10 *DESCRIPTION
+fd44df44f4d78a8bc7efc774f2fef649 *DESCRIPTION
 9af242ae6ccc00b3d09b7d6fff9a3812 *NAMESPACE
-713ed62df763ce0dda490e29e11e4696 *R/miRtest.R
-ba71d0c68eb1c3ad3d552690c0f1df79 *build/vignette.rds
+072b6591f41fe6c454de14efd09b14e3 *R/miRtest.R
+962ebd5ec64c02539992f21fda92240a *build/vignette.rds
 116a4259ee70e7228bc631280f37bb81 *data/A.csv.gz
 ff218ac12883830e13f2482f70253ffe *data/X.csv.gz
 1aaaf365c448abdad3d00e949205ca8d *data/Y.csv.gz
 1e443401d722f22f0e4214a883505f40 *inst/doc/miRtest.R
-14af0d3ad77f92cba1b2777854f5a63f *inst/doc/miRtest.Rnw
-6ae0205b2652173210f50842361b9481 *inst/doc/miRtest.pdf
+1d85e5127dc9af0979f2aada3ae7ec7d *inst/doc/miRtest.Rnw
+7f71f32a9233cefdc8343937c70c0fdb *inst/doc/miRtest.pdf
 1c2c45275bcc748bca396ced1214a365 *man/A.Rd
 948e3f8d440b231ed80c935e672a3b35 *man/X.Rd
 18bf3875b2ef7bff06913d6ad4ae588c *man/Y.Rd
@@ -21,4 +21,4 @@ ddaf49d1fba97390881822977199518e *man/limma.test.Rd
 b3987ee514b13cdf6e32f945ee63ac5c *man/m.combine.Rd
 79c83e40edddf435f97e57278e2412a4 *man/miR.test.Rd
 f4d8bf02f7aeab12daac8d31d8d44a07 *man/miRtest.Rd
-14af0d3ad77f92cba1b2777854f5a63f *vignettes/miRtest.Rnw
+1d85e5127dc9af0979f2aada3ae7ec7d *vignettes/miRtest.Rnw
